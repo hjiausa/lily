@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Anniversary</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600&family=Playfair+Display:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    background: #f5f0ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Nunito', sans-serif;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ── background blobs ── */
+  .bg-blobs {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.18;
+    animation: drift var(--dur) ease-in-out infinite alternate;
+  }
+
+  @keyframes drift {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(var(--tx), var(--ty)) scale(1.05); }
+  }
+
+  /* ── lock page ── */
+  .container {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .lock-wrap {
+    width: 220px;
+    height: 210px;
+    animation: bobble 3.5s ease-in-out infinite;
+  }
+
+  @keyframes bobble {
+    0%, 100% { transform: translateY(0px) rotate(-1deg); }
+    50%       { transform: translateY(-10px) rotate(1deg); }
+  }
+
+  .lock-wrap svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 6px 18px rgba(180,130,230,0.35));
+    transition: filter 0.5s;
+  }
+
+  .lock-wrap.unlocked svg {
+    filter: drop-shadow(0 6px 30px rgba(200,150,255,0.55));
+  }
+
+  .title {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: #a07cc0;
+    letter-spacing: 0.03em;
+    margin-top: 4px;
+    margin-bottom: 6px;
+    text-align: center;
+  }
+
+  .subtitle-small {
+    font-size: 12px;
+    color: #c4a8e0;
+    letter-spacing: 0.12em;
+    font-weight: 300;
+    margin-bottom: 22px;
+    text-align: center;
+  }
+
+  .dots-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: 1.5px solid #d4b8f0;
+    background: transparent;
+    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  .dot.filled {
+    background: #b088d8;
+    border-color: #b088d8;
+    box-shadow: 0 0 8px rgba(176,136,216,0.5);
+    transform: scale(1.2);
+  }
+
+  .dot.error {
+    background: #f0909a;
+    border-color: #f0909a;
+    box-shadow: 0 0 8px rgba(240,144,154,0.5);
+    animation: shake 0.4s ease;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-5px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+
+  .numpad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    width: 200px;
+  }
+
+  .key {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 1.5px solid #e0ccf5;
+    background: #fff;
+    color: #9970c0;
+    font-family: 'Nunito', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    user-select: none;
+    -webkit-user-select: none;
+    box-shadow: 0 2px 8px rgba(180,140,220,0.12);
+  }
+
+  .key:hover {
+    background: #f0e6ff;
+    border-color: #c9a8e8;
+    color: #7a50aa;
+    transform: scale(1.07);
+    box-shadow: 0 4px 14px rgba(180,130,220,0.22);
+  }
+
+  .key:active {
+    transform: scale(0.93);
+    background: #e4d0f8;
+  }
+
+  .key.del { font-size: 14px; color: #c4a8e0; }
+  .key.empty { visibility: hidden; pointer-events: none; }
+
+  .hint {
+    margin-top: 16px;
+    font-size: 11.5px;
+    color: #c4a8e0;
+    letter-spacing: 0.1em;
+    font-weight: 400;
+    min-height: 16px;
+    text-align: center;
+  }
+
+  .hint.error-msg { color: #e08090; }
+
+  /* ── burst + overlay ── */
+  .burst {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .burst.active { opacity: 1; }
+  .petal { position: absolute; border-radius: 50%; }
+
+  @keyframes petalBurst {
+    0%   { transform: rotate(var(--r)) translateY(0) scale(0); opacity: 0.9; }
+    100% { transform: rotate(var(--r)) translateY(-160px) scale(1.2); opacity: 0; }
+  }
+
+  .overlay-transition {
+    position: fixed;
+    inset: 0;
+    background: #f5f0ff;
+    z-index: 200;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.7s ease;
+  }
+
+  .overlay-transition.fade { opacity: 1; }
+
+  /* ══════════════════════════════════════
+     INNER APP (post-unlock)
+  ══════════════════════════════════════ */
+  #next-page {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: #f5f0ff;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #next-page.show { display: flex; }
+
+  /* header */
+  .app-header {
+    text-align: center;
+    padding: 26px 20px 0;
+    flex-shrink: 0;
+  }
+
+  .app-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 21px;
+    font-weight: 500;
+    color: #8850b8;
+  }
+
+  .app-header p {
+    font-size: 11px;
+    color: #c4a8e0;
+    letter-spacing: 0.1em;
+    margin-top: 2px;
+  }
+
+  /* tabs */
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 20px 0;
+    flex-shrink: 0;
+  }
+
+  .tab-btn {
+    padding: 7px 26px;
+    border-radius: 30px;
+    border: 1.5px solid #dcc8f4;
+    background: transparent;
+    color: #b098d0;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.03em;
+  }
+
+  .tab-btn:hover { background: #ede0ff; border-color: #c4a8e8; color: #8050b0; }
+
+  .tab-btn.active {
+    background: #b878e8;
+    border-color: #b878e8;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(180,100,230,0.28);
+  }
+
+  /* panels */
+  .tab-panel {
+    display: none;
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 16px 32px;
+  }
+
+  .tab-panel.active { display: block; }
+
+  /* ── GALLERY ── */
+  .gallery-intro {
+    text-align: center;
+    font-size: 11.5px;
+    color: #c4a8e0;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+  }
+
+  .polaroid-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+  }
+
+  .polaroid {
+    background: #fff;
+    padding: 9px 9px 26px;
+    box-shadow: 0 4px 16px rgba(160,100,220,0.13), 0 1px 4px rgba(0,0,0,0.07);
+    width: 145px;
+    transform: rotate(var(--rot));
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .polaroid:hover {
+    transform: rotate(0deg) scale(1.05);
+    box-shadow: 0 8px 28px rgba(160,100,220,0.22);
+    z-index: 2;
+  }
+
+  .polaroid-img {
+    width: 100%;
+    aspect-ratio: 1;
+    background: #f0e8ff;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .polaroid-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .polaroid-caption {
+    margin-top: 7px;
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 11.5px;
+    color: #a888c8;
+    min-height: 15px;
+  }
+
+  /* add-photo tile */
+  .add-tile {
+    width: 145px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1 / 1.16;
+    border: 2px dashed #dcc8f4;
+    background: rgba(255,255,255,0.55);
+    color: #c4a8e0;
+    cursor: pointer;
+    transition: all 0.2s;
+    gap: 7px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    flex-shrink: 0;
+  }
+
+  .add-tile:hover { border-color: #b878e8; color: #b878e8; background: #f5eeff; }
+  .add-tile .plus { font-size: 28px; line-height: 1; }
+
+  #file-input { display: none; }
+
+  /* lightbox */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgba(50,15,80,0.72);
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .lightbox.open { display: flex; }
+
+  .lightbox-inner {
+    background: #fff;
+    padding: 12px 12px 30px;
+    max-width: 320px;
+    width: 100%;
+    box-shadow: 0 12px 48px rgba(100,40,160,0.3);
+    position: relative;
+    animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+
+  .lightbox-inner img { width: 100%; display: block; }
+
+  .lightbox-caption {
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 13.5px;
+    color: #a888c8;
+    margin-top: 10px;
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: -13px;
+    right: -13px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #b878e8;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(160,80,220,0.3);
+  }
+
+  /* ── LETTER ── */
+  .letter-wrap {
+    max-width: 540px;
+    margin: 0 auto;
+  }
+
+  .letter-paper {
+    background: #fff;
+    border-radius: 3px;
+    padding: 34px 36px 36px;
+    box-shadow: 0 4px 20px rgba(160,100,220,0.12), 0 1px 4px rgba(0,0,0,0.06);
+    position: relative;
+  }
+
+  /* lined paper effect */
+  .letter-paper::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 27px,
+      rgba(216,196,244,0.35) 27px,
+      rgba(216,196,244,0.35) 28px
+    );
+    pointer-events: none;
+    border-radius: 3px;
+  }
+
+  .letter-date {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 12.5px;
+    color: #c4a8e0;
+    margin-bottom: 16px;
+  }
+
+  .letter-body {
+    width: 100%;
+    min-height: 340px;
+    border: none;
+    outline: none;
+    resize: none;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14.5px;
+    line-height: 1.86;
+    color: #5c3d98;
+    background: transparent;
+    position: relative;
+    z-index: 1;
+    caret-color: #b878e8;
+  }
+
+  .letter-body::placeholder { color: #d8c4f0; font-style: italic; }
+
+  .letter-footer {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .letter-saved-msg {
+    font-size: 11.5px;
+    color: #c4a8e0;
+    font-style: italic;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .letter-saved-msg.show { opacity: 1; }
+
+  .letter-save-btn {
+    padding: 7px 22px;
+    border-radius: 30px;
+    border: 1.5px solid #dcc8f4;
+    background: transparent;
+    color: #b098d0;
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+  }
+
+  .letter-save-btn:hover {
+    background: #b878e8;
+    border-color: #b878e8;
+    color: #fff;
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-blobs">
+  <div class="blob" style="width:420px;height:420px;background:#d8b4f8;top:-100px;left:-100px;--dur:9s;--tx:20px;--ty:30px;"></div>
+  <div class="blob" style="width:320px;height:320px;background:#f0d0ff;bottom:-80px;right:-60px;--dur:11s;--tx:-25px;--ty:-20px;"></div>
+  <div class="blob" style="width:220px;height:220px;background:#e8c8ff;top:40%;left:60%;--dur:8s;--tx:15px;--ty:-30px;"></div>
+  <div class="blob" style="width:180px;height:180px;background:#fce4ff;top:20%;right:15%;--dur:13s;--tx:-10px;--ty:20px;"></div>
+</div>
+
+<div class="burst" id="burst"></div>
+<div class="overlay-transition" id="overlay"></div>
+
+<!-- ══════════════ LOCK PAGE ══════════════ -->
+<div class="container" id="main">
+
+  <div class="lock-wrap" id="lockWrap">
+    <svg viewBox="0 0 220 210" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="hg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"  style="stop-color:#dda8f8;stop-opacity:1"/>
+          <stop offset="55%" style="stop-color:#b878e8;stop-opacity:1"/>
+          <stop offset="100%" style="stop-color:#9858c8;stop-opacity:1"/>
+        </linearGradient>
+        <linearGradient id="hs" x1="0%" y1="0%" x2="50%" y2="100%">
+          <stop offset="0%"   style="stop-color:#ffffff;stop-opacity:0.4"/>
+          <stop offset="100%" style="stop-color:#dda8f8;stop-opacity:0"/>
+        </linearGradient>
+      </defs>
+
+      <!-- shackle -->
+      <g id="shackle" style="transition:transform 0.7s cubic-bezier(0.34,1.56,0.64,1);">
+        <path d="M80 108 L80 88 C80 52 140 52 140 88 L140 108" fill="none" stroke="#c090e8" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+
+      <!-- heart body -->
+      <path d="M110 182 C110 182 22 136 22 82 C22 54 40 36 62 36 C80 36 98 48 110 62 C122 48 140 36 158 36 C180 36 198 54 198 82 C198 136 110 182 110 182Z" fill="url(#hg)"/>
+      <path d="M110 182 C110 182 22 136 22 82 C22 54 40 36 62 36 C80 36 98 48 110 62 C122 48 140 36 158 36 C180 36 198 54 198 82 C198 136 110 182 110 182Z" fill="url(#hs)"/>
+
+      <!-- keyhole -->
+      <g id="keyhole" style="transition:opacity 0.4s;">
+        <circle cx="110" cy="112" r="14" fill="rgba(120,60,180,0.35)"/>
+        <rect x="104" y="122" width="12" height="15" rx="3" fill="rgba(120,60,180,0.35)"/>
+        <circle cx="110" cy="112" r="6" fill="rgba(80,30,140,0.5)"/>
+      </g>
+
+      <!-- checkmark -->
+      <g id="checkmark" style="opacity:0;transition:opacity 0.5s;">
+        <circle cx="110" cy="118" r="20" fill="rgba(255,255,255,0.25)"/>
+        <path d="M99 118 L107 127 L124 106" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+
+      <ellipse cx="76" cy="68" rx="24" ry="14" fill="rgba(255,255,255,0.15)" transform="rotate(-20 76 68)"/>
+    </svg>
+  </div>
+
+  <p class="title">happy 2 year anniversary pooks ♡</p>
+  <p class="subtitle-small">enter our special date</p>
+
+  <div class="dots-row" id="dots">
+    <div class="dot" id="d0"></div>
+    <div class="dot" id="d1"></div>
+    <div class="dot" id="d2"></div>
+    <div class="dot" id="d3"></div>
+    <div class="dot" id="d4"></div>
+    <div class="dot" id="d5"></div>
+  </div>
+
+  <div class="numpad">
+    <div class="key" onclick="press('1')">1</div>
+    <div class="key" onclick="press('2')">2</div>
+    <div class="key" onclick="press('3')">3</div>
+    <div class="key" onclick="press('4')">4</div>
+    <div class="key" onclick="press('5')">5</div>
+    <div class="key" onclick="press('6')">6</div>
+    <div class="key" onclick="press('7')">7</div>
+    <div class="key" onclick="press('8')">8</div>
+    <div class="key" onclick="press('9')">9</div>
+    <div class="key empty"></div>
+    <div class="key" onclick="press('0')">0</div>
+    <div class="key del" onclick="pressDelete()">⌫</div>
+  </div>
+
+  <p class="hint" id="hint">✦ tap to unlock ✦</p>
+</div>
+
+<!-- ══════════════ INNER APP ══════════════ -->
+<div id="next-page">
+
+  <div class="app-header">
+    <h1>happy 2 year anniversary pooks ♡</h1>
+    <p>05 · 14 · 24</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('gallery', this)">📷 our photos</button>
+    <button class="tab-btn" onclick="switchTab('letter', this)">💌 a letter</button>
+  </div>
+
+  <!-- ── GALLERY TAB ── -->
+  <div class="tab-panel active" id="tab-gallery">
+    <p class="gallery-intro">click a polaroid to open · click + to add a photo</p>
+
+    <div class="polaroid-grid" id="polaroid-grid">
+      <!-- polaroids injected by JS -->
+      <div class="add-tile" onclick="document.getElementById('file-input').click()">
+        <span class="plus">+</span>
+        add a photo
+      </div>
+    </div>
+
+    <input type="file" id="file-input" accept="image/*" multiple onchange="handleFiles(this.files)">
+  </div>
+
+  <!-- ── LETTER TAB ── -->
+  <div class="tab-panel" id="tab-letter">
+    <div class="letter-wrap">
+      <div class="letter-paper">
+        <span class="letter-date" id="letter-date"></span>
+        <textarea class="letter-body" id="letter-body" placeholder="write something sweet here…" spellcheck="true"></textarea>
+      </div>
+      <div class="letter-footer">
+        <span class="letter-saved-msg" id="saved-msg">saved ✦</span>
+        <button class="letter-save-btn" onclick="saveLetter()">save</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lightbox-img" src="" alt="">
+    <p class="lightbox-caption" id="lightbox-cap"></p>
+  </div>
+</div>
+
+<script>
+  /* ═══ PASSWORD ═══ */
+  const PASSWORD = '051424';
+  let input = '';
+
+  function updateDots() {
+    for (let i = 0; i < 6; i++) {
+      const d = document.getElementById('d' + i);
+      d.classList.remove('filled', 'error');
+      if (i < input.length) d.classList.add('filled');
+    }
+  }
+
+  function press(digit) {
+    if (input.length >= 6) return;
+    input += digit;
+    updateDots();
+    if (input.length === 6) setTimeout(check, 130);
+  }
+
+  function pressDelete() {
+    if (!input.length) return;
+    input = input.slice(0, -1);
+    updateDots();
+    const h = document.getElementById('hint');
+    h.textContent = '✦ tap to unlock ✦';
+    h.classList.remove('error-msg');
+  }
+
+  function check() {
+    input === PASSWORD ? unlock() : showError();
+  }
+
+  function showError() {
+    for (let i = 0; i < 6; i++) {
+      const d = document.getElementById('d' + i);
+      d.classList.remove('filled');
+      d.classList.add('error');
+    }
+    const h = document.getElementById('hint');
+    h.textContent = 'oopsie, try again! ♡';
+    h.classList.add('error-msg');
+    setTimeout(() => {
+      input = '';
+      updateDots();
+      h.textContent = '✦ tap to unlock ✦';
+      h.classList.remove('error-msg');
+    }, 1100);
+  }
+
+  function unlock() {
+    document.getElementById('shackle').style.transform = 'translateY(-34px)';
+    document.getElementById('keyhole').style.opacity = '0';
+    document.getElementById('checkmark').style.opacity = '1';
+    document.getElementById('lockWrap').classList.add('unlocked');
+
+    const burst = document.getElementById('burst');
+    burst.classList.add('active');
+    const colors = ['#e0b8f8','#f8c8e8','#d8a8f0','#f0d0ff'];
+    for (let i = 0; i < 18; i++) {
+      const p = document.createElement('div');
+      p.className = 'petal';
+      const s = Math.random() * 14 + 6;
+      p.style.cssText = `width:${s}px;height:${s}px;background:${colors[i%4]};--r:${i*20}deg;animation:petalBurst 0.9s ease-out forwards;animation-delay:${(Math.random()*0.12).toFixed(2)}s;`;
+      burst.appendChild(p);
+    }
+
+    document.getElementById('hint').textContent = '♡ unlocked with love ♡';
+    document.getElementById('hint').classList.remove('error-msg');
+
+    setTimeout(() => {
+      const ov = document.getElementById('overlay');
+      ov.classList.add('fade');
+      setTimeout(() => {
+        document.getElementById('main').style.display = 'none';
+        document.getElementById('next-page').classList.add('show');
+        ov.style.transition = 'opacity 0.9s';
+        ov.style.opacity = '0';
+        setTimeout(() => ov.classList.remove('fade'), 900);
+      }, 700);
+    }, 950);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key >= '0' && e.key <= '9') press(e.key);
+    else if (e.key === 'Backspace') pressDelete();
+  });
+
+  /* ═══ TABS ═══ */
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  /* ═══ GALLERY ═══ */
+  // rotations cycle for a natural scrapbook feel
+  const rots = ['-2deg','1.5deg','-1deg','2.5deg','0.5deg','-3deg','1deg'];
+  let rotIdx = 0;
+  const photos = []; // { src, caption }
+
+  function handleFiles(files) {
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => addPolaroid(e.target.result, '');
+      reader.readAsDataURL(file);
+    });
+    // reset so same file can be re-added
+    document.getElementById('file-input').value = '';
+  }
+
+  function addPolaroid(src, caption) {
+    const idx = photos.length;
+    photos.push({ src, caption });
+
+    const rot = rots[rotIdx % rots.length];
+    rotIdx++;
+
+    const grid = document.getElementById('polaroid-grid');
+    const addTile = grid.querySelector('.add-tile');
+
+    const div = document.createElement('div');
+    div.className = 'polaroid';
+    div.style.setProperty('--rot', rot);
+    div.innerHTML = `
+      <div class="polaroid-img"><img src="${src}" alt="photo ${idx+1}"></div>
+      <div class="polaroid-caption" contenteditable="true" data-idx="${idx}" title="click to add a caption">${caption || ''}</div>
+    `;
+
+    // save caption on edit
+    div.querySelector('.polaroid-caption').addEventListener('blur', function() {
+      photos[this.dataset.idx].caption = this.textContent;
+    });
+
+    // open lightbox on image click
+    div.querySelector('.polaroid-img').addEventListener('click', () => {
+      openLightbox(src, photos[idx].caption);
+    });
+
+    grid.insertBefore(div, addTile);
+  }
+
+  function openLightbox(src, cap) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox-cap').textContent = cap;
+    document.getElementById('lightbox').classList.add('open');
+  }
+
+  function closeLightbox(e) {
+    if (!e || e.target === document.getElementById('lightbox') || e.currentTarget.classList.contains('lightbox-close')) {
+      document.getElementById('lightbox').classList.remove('open');
+    }
+  }
+
+  /* ═══ LETTER ═══ */
+  // set today's date
+  const now = new Date();
+  document.getElementById('letter-date').textContent = now.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+
+  // restore saved letter if any
+  const saved = localStorage.getItem('anniversary-letter');
+  if (saved) document.getElementById('letter-body').value = saved;
+
+  function saveLetter() {
+    localStorage.setItem('anniversary-letter', document.getElementById('letter-body').value);
+    const msg = document.getElementById('saved-msg');
+    msg.classList.add('show');
+    setTimeout(() => msg.classList.remove('show'), 2000);
+  }
+</script>
+</body>
+</html>
