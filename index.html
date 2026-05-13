@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Happy Anniversary</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💜</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600&family=Playfair+Display:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -162,11 +163,7 @@
     box-shadow: 0 4px 14px rgba(180,130,220,0.22);
   }
 
-  .key:active {
-    transform: scale(0.93);
-    background: #e4d0f8;
-  }
-
+  .key:active { transform: scale(0.93); background: #e4d0f8; }
   .key.del { font-size: 14px; color: #c4a8e0; }
   .key.empty { visibility: hidden; pointer-events: none; }
 
@@ -230,7 +227,6 @@
 
   #next-page.show { display: flex; }
 
-  /* header */
   .app-header {
     text-align: center;
     padding: 26px 20px 0;
@@ -252,12 +248,11 @@
     margin-top: 2px;
   }
 
-  /* tabs */
   .tabs {
     display: flex;
     justify-content: center;
     gap: 8px;
-    padding: 14px 20px 0;
+    padding: 14px 20px 10px;
     flex-shrink: 0;
   }
 
@@ -284,149 +279,116 @@
     box-shadow: 0 4px 14px rgba(180,100,230,0.28);
   }
 
-  /* panels */
   .tab-panel {
     display: none;
     flex: 1;
     overflow-y: auto;
-    padding: 18px 16px 32px;
+    overflow-x: hidden;
   }
 
   .tab-panel.active { display: block; }
 
-  /* ── GALLERY ── */
-  .gallery-intro {
-    text-align: center;
-    font-size: 11.5px;
-    color: #c4a8e0;
-    letter-spacing: 0.08em;
-    margin-bottom: 16px;
+  /* ══════════════════════════════════════
+     COLLAGE
+  ══════════════════════════════════════ */
+  #tab-gallery {
+    padding: 16px 14px 32px;
   }
 
-  .polaroid-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    justify-content: center;
-  }
-
-  .polaroid {
-    background: #fff;
-    padding: 9px 9px 26px;
-    box-shadow: 0 4px 16px rgba(160,100,220,0.13), 0 1px 4px rgba(0,0,0,0.07);
-    width: 145px;
-    transform: rotate(var(--rot));
-    transition: transform 0.2s, box-shadow 0.2s;
-    cursor: pointer;
-    flex-shrink: 0;
-    position: relative;
-  }
-
-  .polaroid:hover {
-    transform: rotate(0deg) scale(1.05);
-    box-shadow: 0 8px 28px rgba(160,100,220,0.22);
-    z-index: 2;
-  }
-
-  .polaroid-img {
+  .collage {
+    columns: 3;
+    column-gap: 6px;
     width: 100%;
-    aspect-ratio: 1;
-    background: #f0e8ff;
+  }
+
+  .collage-item {
+    break-inside: avoid;
+    display: block;
+    margin-bottom: 8px;
+    position: relative;
     overflow: hidden;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(100,60,160,0.18), 0 1px 4px rgba(0,0,0,0.08);
+    opacity: 0;
+    transform: translateY(8px);
+    animation: fadeUp 0.4s ease forwards;
   }
 
-  .polaroid-img img {
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* slight rotation for organic feel */
+  .collage-item.tilt-l { transform: translateY(8px) rotate(-1.2deg); }
+  .collage-item.tilt-r { transform: translateY(8px) rotate(1.1deg); }
+
+  .collage-item img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
     display: block;
   }
 
-  .polaroid-caption {
-    margin-top: 7px;
+  /* empty state */
+  .collage-empty {
     text-align: center;
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
-    font-size: 11.5px;
-    color: #a888c8;
-    min-height: 15px;
-  }
-
-  /* add-photo tile */
-  .add-tile {
-    width: 145px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    aspect-ratio: 1 / 1.16;
-    border: 2px dashed #dcc8f4;
-    background: rgba(255,255,255,0.55);
+    padding: 48px 20px;
     color: #c4a8e0;
-    cursor: pointer;
-    transition: all 0.2s;
-    gap: 7px;
-    font-family: 'Nunito', sans-serif;
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    flex-shrink: 0;
+    font-size: 13px;
+    line-height: 1.8;
+    letter-spacing: 0.04em;
   }
 
-  .add-tile:hover { border-color: #b878e8; color: #b878e8; background: #f5eeff; }
-  .add-tile .plus { font-size: 28px; line-height: 1; }
+  .collage-empty code {
+    display: inline-block;
+    background: #ede0ff;
+    color: #9060c0;
+    font-family: monospace;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin: 2px 0;
+  }
 
-  #file-input { display: none; }
-
-  /* lightbox */
+  /* ── lightbox ── */
   .lightbox {
     display: none;
     position: fixed;
     inset: 0;
     z-index: 500;
-    background: rgba(50,15,80,0.72);
+    background: rgba(40,10,70,0.78);
     align-items: center;
     justify-content: center;
-    padding: 24px;
+    padding: 20px;
   }
 
   .lightbox.open { display: flex; }
 
   .lightbox-inner {
-    background: #fff;
-    padding: 12px 12px 30px;
-    max-width: 320px;
-    width: 100%;
-    box-shadow: 0 12px 48px rgba(100,40,160,0.3);
     position: relative;
-    animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    max-width: 88vw;
+    max-height: 88vh;
+    animation: popIn 0.22s cubic-bezier(0.34,1.56,0.64,1);
   }
 
   @keyframes popIn {
-    from { transform: scale(0.85); opacity: 0; }
+    from { transform: scale(0.88); opacity: 0; }
     to   { transform: scale(1); opacity: 1; }
   }
 
-  .lightbox-inner img { width: 100%; display: block; }
-
-  .lightbox-caption {
-    text-align: center;
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
-    font-size: 13.5px;
-    color: #a888c8;
-    margin-top: 10px;
+  .lightbox-inner img {
+    max-width: 100%;
+    max-height: 84vh;
+    display: block;
+    border-radius: 3px;
+    box-shadow: 0 16px 60px rgba(80,20,140,0.45);
   }
 
   .lightbox-close {
     position: absolute;
-    top: -13px;
-    right: -13px;
-    width: 28px;
-    height: 28px;
+    top: -14px;
+    right: -14px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     background: #b878e8;
     color: #fff;
@@ -436,14 +398,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(160,80,220,0.3);
+    box-shadow: 0 2px 8px rgba(160,80,220,0.35);
   }
 
-  /* ── LETTER ── */
-  .letter-wrap {
-    max-width: 540px;
-    margin: 0 auto;
-  }
+  /* ── letter ── */
+  #tab-letter { padding: 18px 16px 32px; }
+
+  .letter-wrap { max-width: 540px; margin: 0 auto; }
 
   .letter-paper {
     background: #fff;
@@ -453,7 +414,6 @@
     position: relative;
   }
 
-  /* lined paper effect */
   .letter-paper::after {
     content: '';
     position: absolute;
@@ -480,10 +440,6 @@
 
   .letter-body {
     width: 100%;
-    min-height: 340px;
-    border: none;
-    outline: none;
-    resize: none;
     font-family: 'Nunito', sans-serif;
     font-size: 14.5px;
     line-height: 1.86;
@@ -491,47 +447,7 @@
     background: transparent;
     position: relative;
     z-index: 1;
-    caret-color: #b878e8;
-  }
-
-  .letter-body::placeholder { color: #d8c4f0; font-style: italic; }
-
-  .letter-footer {
-    margin-top: 16px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .letter-saved-msg {
-    font-size: 11.5px;
-    color: #c4a8e0;
-    font-style: italic;
-    opacity: 0;
-    transition: opacity 0.4s;
-  }
-
-  .letter-saved-msg.show { opacity: 1; }
-
-  .letter-save-btn {
-    padding: 7px 22px;
-    border-radius: 30px;
-    border: 1.5px solid #dcc8f4;
-    background: transparent;
-    color: #b098d0;
-    font-family: 'Nunito', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.04em;
-  }
-
-  .letter-save-btn:hover {
-    background: #b878e8;
-    border-color: #b878e8;
-    color: #fff;
+    white-space: normal;
   }
 </style>
 </head>
@@ -563,29 +479,20 @@
           <stop offset="100%" style="stop-color:#dda8f8;stop-opacity:0"/>
         </linearGradient>
       </defs>
-
-      <!-- shackle -->
-      <g id="shackle" style="transition:transform 0.7s cubic-bezier(0.34,1.56,0.64,1);">
+      <g id="shackle" style="transition:transform 0.7s cubic-bezier(0.34,1.56,0.64,1); visibility:hidden;">
         <path d="M80 108 L80 88 C80 52 140 52 140 88 L140 108" fill="none" stroke="#c090e8" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
       </g>
-
-      <!-- heart body -->
       <path d="M110 182 C110 182 22 136 22 82 C22 54 40 36 62 36 C80 36 98 48 110 62 C122 48 140 36 158 36 C180 36 198 54 198 82 C198 136 110 182 110 182Z" fill="url(#hg)"/>
       <path d="M110 182 C110 182 22 136 22 82 C22 54 40 36 62 36 C80 36 98 48 110 62 C122 48 140 36 158 36 C180 36 198 54 198 82 C198 136 110 182 110 182Z" fill="url(#hs)"/>
-
-      <!-- keyhole -->
       <g id="keyhole" style="transition:opacity 0.4s;">
         <circle cx="110" cy="112" r="14" fill="rgba(120,60,180,0.35)"/>
         <rect x="104" y="122" width="12" height="15" rx="3" fill="rgba(120,60,180,0.35)"/>
         <circle cx="110" cy="112" r="6" fill="rgba(80,30,140,0.5)"/>
       </g>
-
-      <!-- checkmark -->
       <g id="checkmark" style="opacity:0;transition:opacity 0.5s;">
         <circle cx="110" cy="118" r="20" fill="rgba(255,255,255,0.25)"/>
         <path d="M99 118 L107 127 L124 106" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
       </g>
-
       <ellipse cx="76" cy="68" rx="24" ry="14" fill="rgba(255,255,255,0.15)" transform="rotate(-20 76 68)"/>
     </svg>
   </div>
@@ -629,35 +536,33 @@
   </div>
 
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('gallery', this)">📷 our photos</button>
-    <button class="tab-btn" onclick="switchTab('letter', this)">💌 a letter</button>
+    <button class="tab-btn active" onclick="switchTab('gallery', this)">📷 our memories</button>
+    <button class="tab-btn" onclick="switchTab('letter', this)">💌 for lily</button>
   </div>
 
   <!-- ── GALLERY TAB ── -->
   <div class="tab-panel active" id="tab-gallery">
-    <p class="gallery-intro">click a polaroid to open · click + to add a photo</p>
-
-    <div class="polaroid-grid" id="polaroid-grid">
-      <!-- polaroids injected by JS -->
-      <div class="add-tile" onclick="document.getElementById('file-input').click()">
-        <span class="plus">+</span>
-        add a photo
-      </div>
+    <div class="collage" id="collage">
+      <!-- items injected by JS from GALLERY_PHOTOS list -->
     </div>
-
-    <input type="file" id="file-input" accept="image/*" multiple onchange="handleFiles(this.files)">
   </div>
 
   <!-- ── LETTER TAB ── -->
   <div class="tab-panel" id="tab-letter">
     <div class="letter-wrap">
       <div class="letter-paper">
-        <span class="letter-date" id="letter-date"></span>
-        <textarea class="letter-body" id="letter-body" placeholder="write something sweet here…" spellcheck="true"></textarea>
-      </div>
-      <div class="letter-footer">
-        <span class="letter-saved-msg" id="saved-msg">saved ✦</span>
-        <button class="letter-save-btn" onclick="saveLetter()">save</button>
+        <span class="letter-date">May 14, 2026</span>
+        <!-- ✏️  PASTE YOUR LETTER BELOW — replace this placeholder text -->
+        <div class="letter-body">
+          To Lily <br><br>
+          Happy two year anniversary! I'm so blessed and happy to have been able to call you my girlfriend for the past two years. It's a little crazy how fast time flies, but I’ve absolutely loved each and every second of it with you. Some of my favorite memories from the past two years have been with you and I’ve tried to capture my favorites in the little photo collage I made. From when we became official at Golden Gate Park, to our many trips around the bay area (Pebble Beach was obviously the best), to us navigating our lives across the country from one another I wouldn’t have wanted it to be anyone else.<br><br>
+          I could say endless things about how amazing and beautiful you are, which I’m sure you already hear from me all the time. But, something I really want to thank you for is how you’ve helped me grow into the man I am today and taught me so much about life in general. I’ve learned the right ways to treat a beautiful woman like you and I hope you feel very lucky with the man you’ve found. Obviously, nobody is perfect and we will continue to grow together, but looking back on the past two years, we’ve done a wonderful job.<br><br>
+          I know recently we’ve gone through a lot, but through it all, we have continued to choose each other even when almost 3000 miles apart. That alone is special and not something everyone has the faith to do that. I truly believe in the love and relationship that we have built and whatever comes our way we will figure it out like we always do. <br><br>
+          I’m writing this beforehand but I hope our dinner at Oiji Mi was incredible and I hope you are as excited for this trip as I am. We have so much to do and explore in New York these next few days so let’s make the most of it. I say this time and time again, you are the best thing that’s happened to me in my life and words cannot describe how much I love you. I’ll always choose you and be by your side until our hair turns gray. I love you ♡<br><br>
+          Love,<br>
+          Henry
+        </div>
+        <!-- ✏️  END OF LETTER -->
       </div>
     </div>
   </div>
@@ -669,180 +574,194 @@
   <div class="lightbox-inner">
     <button class="lightbox-close" onclick="closeLightbox()">✕</button>
     <img id="lightbox-img" src="" alt="">
-    <p class="lightbox-caption" id="lightbox-cap"></p>
   </div>
 </div>
 
 <script>
-  /* ═══ PASSWORD ═══ */
-  const PASSWORD = '051424';
-  let input = '';
+/* ═══════════════════════════════════════════════════════
+   📁 ADD YOUR PHOTOS HERE
+   ─────────────────────────────────────────────────────
+   Put all your photos in a folder called "gallery"
+   next to this index.html file, then list each
+   filename below. That's it!
 
-  function updateDots() {
-    for (let i = 0; i < 6; i++) {
-      const d = document.getElementById('d' + i);
-      d.classList.remove('filled', 'error');
-      if (i < input.length) d.classList.add('filled');
-    }
+   Example:
+     'gallery/photo1.jpg',
+     'gallery/summer2023.png',
+     'gallery/birthday.jpg',
+═══════════════════════════════════════════════════════ */
+const GALLERY_PHOTOS = [
+  'gallery/IMG_7461.jpeg',
+  'gallery/IMG_2260.jpeg',
+  'gallery/IMG_0877.jpg',
+  'gallery/IMG_1010.jpeg',
+  'gallery/IMG_1673.jpeg',
+  'gallery/IMG_8885.jpeg',
+  'gallery/IMG_3190.jpg',
+  'gallery/IMG_3279.jpeg',
+  'gallery/IMG_3389.jpeg',
+  'gallery/IMG_3405.jpeg',
+  'gallery/IMG_3811.jpeg',
+  'gallery/IMG_3865.jpeg',
+  'gallery/IMG_3873.jpeg',
+  'gallery/IMG_3922.jpeg',
+  'gallery/IMG_0886.jpeg',
+  'gallery/IMG_3957.jpg',
+  'gallery/IMG_2789.jpeg',
+  'gallery/IMG_4206.jpeg',
+  'gallery/IMG_4851.jpeg',
+  'gallery/IMG_0367.jpeg',
+  'gallery/IMG_7396.jpeg',
+  'gallery/IMG_9603.jpeg',
+  'gallery/IMG_3889.jpeg'
+];
+
+/* ═══════════════════════════════════════════════════════
+   You don't need to change anything below this line
+═══════════════════════════════════════════════════════ */
+
+/* ── collage layout engine ── */
+
+const tiltPattern = ['tilt-l','','tilt-r','','tilt-l','tilt-r','','tilt-l','','tilt-r','',''];
+
+function buildCollage() {
+  const collage = document.getElementById('collage');
+  collage.innerHTML = '';
+
+  if (!GALLERY_PHOTOS.length) {
+    collage.innerHTML = `
+      <div class="collage-empty">
+        No photos yet! Add your images to a folder called<br>
+        <code>gallery/</code> next to <code>index.html</code>,<br>
+        then list the filenames in the <code>GALLERY_PHOTOS</code><br>
+        array near the top of the &lt;script&gt; tag.
+      </div>`;
+    return;
   }
 
-  function press(digit) {
-    if (input.length >= 6) return;
-    input += digit;
-    updateDots();
-    if (input.length === 6) setTimeout(check, 130);
-  }
+  GALLERY_PHOTOS.forEach((src, i) => {
+    const div = document.createElement('div');
+    const tilt  = tiltPattern[i % tiltPattern.length];
+    const delay = (i * 40) + 'ms';
 
-  function pressDelete() {
-    if (!input.length) return;
-    input = input.slice(0, -1);
+    div.className = ['collage-item', tilt].filter(Boolean).join(' ');
+    div.style.animationDelay = delay;
+    div.innerHTML = `<img src="${src}" alt="memory ${i+1}" loading="lazy" decoding="async">`;
+    div.addEventListener('click', () => openLightbox(src));
+    collage.appendChild(div);
+  });
+}
+
+/* ── lightbox ── */
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox(e) {
+  if (!e || e.target === document.getElementById('lightbox') || e.currentTarget.classList.contains('lightbox-close')) {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+
+/* ── password ── */
+const PASSWORD = '051424';
+let input = '';
+
+function updateDots() {
+  for (let i = 0; i < 6; i++) {
+    const d = document.getElementById('d' + i);
+    d.classList.remove('filled', 'error');
+    if (i < input.length) d.classList.add('filled');
+  }
+}
+
+function press(digit) {
+  if (input.length >= 6) return;
+  input += digit;
+  updateDots();
+  if (input.length === 6) setTimeout(check, 130);
+}
+
+function pressDelete() {
+  if (!input.length) return;
+  input = input.slice(0, -1);
+  updateDots();
+  const h = document.getElementById('hint');
+  h.textContent = '✦ tap to unlock ✦';
+  h.classList.remove('error-msg');
+}
+
+function check() { input === PASSWORD ? unlock() : showError(); }
+
+function showError() {
+  for (let i = 0; i < 6; i++) {
+    document.getElementById('d'+i).classList.replace('filled','error') ||
+    document.getElementById('d'+i).classList.add('error');
+  }
+  const h = document.getElementById('hint');
+  h.textContent = 'oopsie, try again! ♡';
+  h.classList.add('error-msg');
+  setTimeout(() => {
+    input = '';
     updateDots();
-    const h = document.getElementById('hint');
     h.textContent = '✦ tap to unlock ✦';
     h.classList.remove('error-msg');
+  }, 1100);
+}
+
+function unlock() {
+  const shackleEl = document.getElementById('shackle');
+  shackleEl.style.visibility = 'visible';
+  shackleEl.style.transform = 'translateY(-34px)';
+  document.getElementById('keyhole').style.opacity = '0';
+  document.getElementById('checkmark').style.opacity = '1';
+  document.getElementById('lockWrap').classList.add('unlocked');
+
+  const burst = document.getElementById('burst');
+  burst.classList.add('active');
+  const colors = ['#e0b8f8','#f8c8e8','#d8a8f0','#f0d0ff'];
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    const s = Math.random() * 14 + 6;
+    p.style.cssText = `width:${s}px;height:${s}px;background:${colors[i%4]};--r:${i*20}deg;animation:petalBurst 0.9s ease-out forwards;animation-delay:${(Math.random()*0.12).toFixed(2)}s;`;
+    burst.appendChild(p);
   }
 
-  function check() {
-    input === PASSWORD ? unlock() : showError();
-  }
+  document.getElementById('hint').textContent = '♡ unlocked with love ♡';
+  document.getElementById('hint').classList.remove('error-msg');
 
-  function showError() {
-    for (let i = 0; i < 6; i++) {
-      const d = document.getElementById('d' + i);
-      d.classList.remove('filled');
-      d.classList.add('error');
-    }
-    const h = document.getElementById('hint');
-    h.textContent = 'oopsie, try again! ♡';
-    h.classList.add('error-msg');
+  setTimeout(() => {
+    const ov = document.getElementById('overlay');
+    ov.classList.add('fade');
     setTimeout(() => {
-      input = '';
-      updateDots();
-      h.textContent = '✦ tap to unlock ✦';
-      h.classList.remove('error-msg');
-    }, 1100);
-  }
+      document.getElementById('main').style.display = 'none';
+      document.getElementById('next-page').classList.add('show');
+      ov.style.transition = 'opacity 0.9s';
+      ov.style.opacity = '0';
+      setTimeout(() => ov.classList.remove('fade'), 900);
+    }, 700);
+  }, 950);
+}
 
-  function unlock() {
-    document.getElementById('shackle').style.transform = 'translateY(-34px)';
-    document.getElementById('keyhole').style.opacity = '0';
-    document.getElementById('checkmark').style.opacity = '1';
-    document.getElementById('lockWrap').classList.add('unlocked');
+document.addEventListener('keydown', e => {
+  if (e.key >= '0' && e.key <= '9') press(e.key);
+  else if (e.key === 'Backspace') pressDelete();
+});
 
-    const burst = document.getElementById('burst');
-    burst.classList.add('active');
-    const colors = ['#e0b8f8','#f8c8e8','#d8a8f0','#f0d0ff'];
-    for (let i = 0; i < 18; i++) {
-      const p = document.createElement('div');
-      p.className = 'petal';
-      const s = Math.random() * 14 + 6;
-      p.style.cssText = `width:${s}px;height:${s}px;background:${colors[i%4]};--r:${i*20}deg;animation:petalBurst 0.9s ease-out forwards;animation-delay:${(Math.random()*0.12).toFixed(2)}s;`;
-      burst.appendChild(p);
-    }
+/* ── tabs ── */
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
 
-    document.getElementById('hint').textContent = '♡ unlocked with love ♡';
-    document.getElementById('hint').classList.remove('error-msg');
-
-    setTimeout(() => {
-      const ov = document.getElementById('overlay');
-      ov.classList.add('fade');
-      setTimeout(() => {
-        document.getElementById('main').style.display = 'none';
-        document.getElementById('next-page').classList.add('show');
-        ov.style.transition = 'opacity 0.9s';
-        ov.style.opacity = '0';
-        setTimeout(() => ov.classList.remove('fade'), 900);
-      }, 700);
-    }, 950);
-  }
-
-  document.addEventListener('keydown', e => {
-    if (e.key >= '0' && e.key <= '9') press(e.key);
-    else if (e.key === 'Backspace') pressDelete();
-  });
-
-  /* ═══ TABS ═══ */
-  function switchTab(name, btn) {
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-' + name).classList.add('active');
-    btn.classList.add('active');
-  }
-
-  /* ═══ GALLERY ═══ */
-  // rotations cycle for a natural scrapbook feel
-  const rots = ['-2deg','1.5deg','-1deg','2.5deg','0.5deg','-3deg','1deg'];
-  let rotIdx = 0;
-  const photos = []; // { src, caption }
-
-  function handleFiles(files) {
-    Array.from(files).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = e => addPolaroid(e.target.result, '');
-      reader.readAsDataURL(file);
-    });
-    // reset so same file can be re-added
-    document.getElementById('file-input').value = '';
-  }
-
-  function addPolaroid(src, caption) {
-    const idx = photos.length;
-    photos.push({ src, caption });
-
-    const rot = rots[rotIdx % rots.length];
-    rotIdx++;
-
-    const grid = document.getElementById('polaroid-grid');
-    const addTile = grid.querySelector('.add-tile');
-
-    const div = document.createElement('div');
-    div.className = 'polaroid';
-    div.style.setProperty('--rot', rot);
-    div.innerHTML = `
-      <div class="polaroid-img"><img src="${src}" alt="photo ${idx+1}"></div>
-      <div class="polaroid-caption" contenteditable="true" data-idx="${idx}" title="click to add a caption">${caption || ''}</div>
-    `;
-
-    // save caption on edit
-    div.querySelector('.polaroid-caption').addEventListener('blur', function() {
-      photos[this.dataset.idx].caption = this.textContent;
-    });
-
-    // open lightbox on image click
-    div.querySelector('.polaroid-img').addEventListener('click', () => {
-      openLightbox(src, photos[idx].caption);
-    });
-
-    grid.insertBefore(div, addTile);
-  }
-
-  function openLightbox(src, cap) {
-    document.getElementById('lightbox-img').src = src;
-    document.getElementById('lightbox-cap').textContent = cap;
-    document.getElementById('lightbox').classList.add('open');
-  }
-
-  function closeLightbox(e) {
-    if (!e || e.target === document.getElementById('lightbox') || e.currentTarget.classList.contains('lightbox-close')) {
-      document.getElementById('lightbox').classList.remove('open');
-    }
-  }
-
-  /* ═══ LETTER ═══ */
-  // set today's date
-  const now = new Date();
-  document.getElementById('letter-date').textContent = now.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
-
-  // restore saved letter if any
-  const saved = localStorage.getItem('anniversary-letter');
-  if (saved) document.getElementById('letter-body').value = saved;
-
-  function saveLetter() {
-    localStorage.setItem('anniversary-letter', document.getElementById('letter-body').value);
-    const msg = document.getElementById('saved-msg');
-    msg.classList.add('show');
-    setTimeout(() => msg.classList.remove('show'), 2000);
-  }
+/* ── init ── */
+buildCollage();
 </script>
 </body>
 </html>
